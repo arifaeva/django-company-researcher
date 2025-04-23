@@ -18,6 +18,40 @@
         <input type="text" name="company_name" placeholder="Company Name" />
         <button type="submit">Search</button>
       </form>
+
+      <section id="log"></section>
+      <section id="content"></section>
     </main>
+
+    <script>
+      const ws = new WebSocket("ws://localhost:8000/ws/notifications/");
+
+      ws.onmessage = function (event) {
+        const data = JSON.parse(event.data);
+
+        const type = data.message.type;
+        const content = data.message.content;
+
+        if (type == "notification") {
+          const notificationLog = document.getElementById("log");
+          notificationLog.innerHTML += `<p>${content}</p>`;
+        }
+
+        if (type == "final_result") {
+          const notificationLog = document.getElementById("log");
+          const contentDiv = document.getElementById("content");
+          contentDiv.innerHTML = content;
+          notificationLog.innerHTML = "";
+        }
+      };
+
+      ws.onopen = function (event) {
+        console.log("Connected to websocket");
+      };
+
+      ws.onclose = function (event) {
+        console.log("Disconnected from websocket");
+      };
+    </script>
   </body>
 </html>
